@@ -1,6 +1,7 @@
 package com.tonial.usandosqlite
 
 import android.os.Bundle
+import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -17,4 +18,10 @@ class MainActivity : AppCompatActivity() {
             insets
         }
     }
+
+    fun btnIncluirOnClick(view: View) {}
+    fun btnEditarOnClick(view: View) {}
+    fun btnRemoverOnClick(view: View) {}
+    fun btnBuscarOnClick(view: View) {}
+    fun btnListarOnClick(view: View) {}
 }

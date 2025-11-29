@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">UsandoSQLite</string>
+    <string name="cod">Cod:</string>
+    <string name="nome">Nome:</string>
+    <string name="telefone">Telefone:</string>
+    <string name="incluir">Incluir</string>
+    <string name="editar">Editar</string>
+    <string name="remover">Remover</string>
+    <string name="buscar">Buscar</string>
+    <string name="listar">Listar</string>
 </resources>
