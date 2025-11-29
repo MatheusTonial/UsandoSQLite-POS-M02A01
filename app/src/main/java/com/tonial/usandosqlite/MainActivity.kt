@@ -10,13 +10,15 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.tonial.usandosqlite.database.DatabaseHandler
 import com.tonial.usandosqlite.databinding.ActivityMainBinding
+import com.tonial.usandosqlite.entity.Cadastros
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var banco: DatabaseHandler
 
-    private lateinit var banco: SQLiteDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,9 +27,10 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        banco = openOrCreateDatabase("bdfile.sqlite", MODE_PRIVATE, null)
+        //banco = openOrCreateDatabase("bdfile.sqlite", MODE_PRIVATE, null)
+        //banco.execSQL("CREATE TABLE IF NOT EXISTS cadastros(_id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT, telefone TEXT);")
 
-        banco.execSQL("CREATE TABLE IF NOT EXISTS cadastros(_id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT, telefone TEXT);")
+        banco = DatabaseHandler(this)
 
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -38,10 +41,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun btnIncluirOnClick(view: View) {
-        val registro = ContentValues()
-        registro.put("nome", binding.etNome.text.toString())
-        registro.put("telefone", binding.etNumero.text.toString())
-        banco.insert("cadastros", null, registro)
+
+        banco.create(Cadastros(0, binding.etNome.text.toString(), binding.etNumero.text.toString()))
 
         Toast.makeText(this, "Registro incluido com sucesso", Toast.LENGTH_SHORT).show()
         binding.etNome.setText("")
@@ -50,11 +51,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun btnEditarOnClick(view: View) {
-        val registro = ContentValues()
-        registro.put("nome", binding.etNome.text.toString())
-        registro.put("telefone", binding.etNumero.text.toString())
 
-        banco.update("cadastros", registro, "_id = ${binding.etCod.text.toString()}", null)
+        banco.update(Cadastros(binding.etCod.text.toString().toInt(), binding.etNome.text.toString(), binding.etNumero.text.toString()))
 
         Toast.makeText(this, "Registro atualizado com sucesso", Toast.LENGTH_SHORT).show()
         binding.etNome.setText("")
@@ -63,7 +61,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun btnRemoverOnClick(view: View) {
-        banco.delete("cadastros", "_id = ${binding.etCod.text.toString()}", null)
+
+        banco.delete(binding.etCod.text.toString().toInt())
 
         Toast.makeText(this, "Registro removido com sucesso", Toast.LENGTH_SHORT).show()
         binding.etNome.setText("")
@@ -78,19 +77,16 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-       //val cursor: Cursor = banco.rawQuery("SELECT * FROM cadastros WHERE _id = ${binding.etCod.text.toString()}", null)
-        val registro: Cursor = banco.query(
-            "cadastros",
-            null,
-            "_id = ${binding.etCod.text.toString()}",
-            null, null, null, null)
+        val registro: Cadastros? = banco.read(binding.etCod.text.toString().toInt())
 
-        if(registro.moveToNext()){
-            val nome = registro.getString(1)
-            val telefone = registro.getString(2)
+
+        if(registro != null){
+            val nome = registro.nome
+            val telefone = registro.telefone
 
             binding.etNome.setText(nome)
             binding.etNumero.setText(telefone)
+
         }else{
             Toast.makeText(this, "Registro não encontrado", Toast.LENGTH_SHORT).show()
             binding.etNome.setText("")
@@ -100,7 +96,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun btnListarOnClick(view: View) {
-        val registros = banco.query("cadastros", null, null, null, null, null, null)
+
+        val registros = banco.readAll()
 
         if(registros.count == 0){
             Toast.makeText(this, "Nenhum registro encontrado", Toast.LENGTH_SHORT).show()
@@ -109,15 +106,20 @@ class MainActivity : AppCompatActivity() {
 
         val saida = StringBuilder()
 
+        var index: Int = 0;
         while (registros.moveToNext()){
+            if(index > 0 ){
+                saida.append("\n\n")
+            }
             val id = registros.getInt(0)
             val nome = registros.getString(1)
             val telefone = registros.getString(2)
 
             saida.append("ID: $id\n")
             saida.append("Nome: $nome\n")
-            saida.append("Telefone: $telefone\n\n")
+            saida.append("Telefone: $telefone")
 
+            index++;
         }
         Toast.makeText(this, saida.toString(), Toast.LENGTH_SHORT).show()
         binding.etNome.setText("")
