@@ -9,7 +9,7 @@ import android.widget.Toast
 import com.tonial.usandosqlite.entity.Cadastros
 
 // A versão do banco foi incrementada para 2 para acionar o onUpgrade.
-class DatabaseHandler(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION){
+class DatabaseHandler private constructor(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION){
 
     companion object{
         const val DATABASE_NAME = "bdfile.sqlite"
@@ -18,6 +18,15 @@ class DatabaseHandler(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
         const val COLUMN_ID = ""
         const val COLUMN_NOME = ""
         const val COLUMN_TELEFONE = ""
+
+        @Volatile
+        private var INSTANCE: DatabaseHandler? = null
+        fun getInstance(context: Context): DatabaseHandler {
+            if (INSTANCE == null) {
+                INSTANCE = DatabaseHandler(context.applicationContext)
+            }
+            return INSTANCE as DatabaseHandler
+        }
     }
 
     override fun onCreate(banco: SQLiteDatabase?) {

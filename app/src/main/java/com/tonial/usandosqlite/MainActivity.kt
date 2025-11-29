@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         //banco = openOrCreateDatabase("bdfile.sqlite", MODE_PRIVATE, null)
         //banco.execSQL("CREATE TABLE IF NOT EXISTS cadastros(_id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT, telefone TEXT);")
 
-        banco = DatabaseHandler(this)
+        banco = DatabaseHandler.getInstance(this)
 
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
