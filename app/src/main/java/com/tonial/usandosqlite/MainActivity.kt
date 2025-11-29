@@ -1,6 +1,7 @@
 package com.tonial.usandosqlite
 
 import android.content.ContentValues
+import android.content.Intent
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
@@ -96,34 +97,34 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun btnListarOnClick(view: View) {
+        val intent = Intent(this, ListarActivity::class.java)
+        startActivity(intent)
 
-        val registros = banco.readAll()
-
-        if(registros.count == 0){
-            Toast.makeText(this, "Nenhum registro encontrado", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val saida = StringBuilder()
-
-        var index: Int = 0;
-        while (registros.moveToNext()){
-            if(index > 0 ){
-                saida.append("\n\n")
-            }
-            val id = registros.getInt(0)
-            val nome = registros.getString(1)
-            val telefone = registros.getString(2)
-
-            saida.append("ID: $id\n")
-            saida.append("Nome: $nome\n")
-            saida.append("Telefone: $telefone")
-
-            index++;
-        }
-        Toast.makeText(this, saida.toString(), Toast.LENGTH_SHORT).show()
-        binding.etNome.setText("")
-        binding.etNumero.setText("")
-        binding.etCod.setText("")
+//        val registros = banco.readAll()
+//
+//        if(registros.count == 0){
+//            Toast.makeText(this, "Nenhum registro encontrado", Toast.LENGTH_SHORT).show()
+//            return
+//        }
+//
+//        val saida = StringBuilder()
+//
+//        var index: Int = 0;
+//        while (registros.moveToNext()){
+//            if(index > 0 ){
+//                saida.append("\n\n")
+//            }
+//            val nome = registros.getString(DatabaseHandler.COLUMN_NOME.toInt())
+//            val telefone = registros.getString(DatabaseHandler.COLUMN_TELEFONE.toInt())
+//
+//            saida.append("Nome: $nome\n")
+//            saida.append("Telefone: $telefone")
+//
+//            index++;
+//        }
+//        Toast.makeText(this, saida.toString(), Toast.LENGTH_SHORT).show()
+//        binding.etNome.setText("")
+//        binding.etNumero.setText("")
+//        binding.etCod.setText("")
     }
 }
