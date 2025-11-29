@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.tonial.usandosqlite.adapter.MeuAdapter
 import com.tonial.usandosqlite.database.DatabaseHandler
 import com.tonial.usandosqlite.databinding.ActivityListarBinding
 
@@ -44,14 +45,15 @@ class ListarActivity : AppCompatActivity() {
 
         val cursor: Cursor = banco.readAll()
 
-        val adapter = SimpleCursorAdapter(
-            this,
-            android.R.layout.simple_list_item_2,
-            cursor,
-            arrayOf<String>("nome", "telefone"),
-            intArrayOf(android.R.id.text1, android.R.id.text2),
-            0
-        )
+//        val adapter = SimpleCursorAdapter(
+//            this,
+//            android.R.layout.simple_list_item_2,
+//            cursor,
+//            arrayOf<String>("nome", "telefone"),
+//            intArrayOf(android.R.id.text1, android.R.id.text2),
+//            0
+//        )
+        val adapter = MeuAdapter(this, cursor)
 
         binding.lvRegistros.adapter = adapter
 
