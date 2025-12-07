@@ -2,12 +2,11 @@ package com.tonial.usandosqlite
 
 import android.database.Cursor
 import android.os.Bundle
-import android.widget.ArrayAdapter
-import android.widget.SimpleCursorAdapter
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.GridLayoutManager
 import com.tonial.usandosqlite.adapter.MeuAdapter
 import com.tonial.usandosqlite.database.DatabaseHandler
 import com.tonial.usandosqlite.databinding.ActivityListarBinding
@@ -15,7 +14,6 @@ import com.tonial.usandosqlite.databinding.ActivityListarBinding
 class ListarActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityListarBinding
-
     private lateinit var banco: DatabaseHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,7 +25,8 @@ class ListarActivity : AppCompatActivity() {
 
         banco = DatabaseHandler.getInstance(this)
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.lvRegistros)) { v, insets ->
+        // Ajusta o padding para as barras do sistema
+        ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
@@ -37,27 +36,18 @@ class ListarActivity : AppCompatActivity() {
     }
 
     private fun initList() {
-//        val lista = listOf<String>("Brasil", "Argentina", "Chile", "Uruguai")
-//
-//        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, lista)
-//
-//        binding.lvRegistros.adapter = adapter
-
+        // Busca os dados do banco
         val cursor: Cursor = banco.readAll()
 
-//        val adapter = SimpleCursorAdapter(
-//            this,
-//            android.R.layout.simple_list_item_2,
-//            cursor,
-//            arrayOf<String>("nome", "telefone"),
-//            intArrayOf(android.R.id.text1, android.R.id.text2),
-//            0
-//        )
+        // Cria o adapter
         val adapter = MeuAdapter(this, cursor)
 
-        binding.lvRegistros.adapter = adapter
-
-
-
+        // Configura a RecyclerView
+        binding.rvRegistros.apply {
+            // Define o layout manager para ser um grid com 2 colunas
+            layoutManager = GridLayoutManager(this@ListarActivity, 2)
+            // Define o adapter
+            this.adapter = adapter
+        }
     }
 }
