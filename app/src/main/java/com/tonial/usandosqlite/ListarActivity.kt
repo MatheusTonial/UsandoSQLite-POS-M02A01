@@ -3,8 +3,10 @@ package com.tonial.usandosqlite
 import android.content.Intent
 import android.database.Cursor
 import android.os.Bundle
+import android.view.Menu
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.GridLayoutManager
@@ -12,10 +14,11 @@ import com.tonial.usandosqlite.adapter.MeuAdapter
 import com.tonial.usandosqlite.database.DatabaseHandler
 import com.tonial.usandosqlite.databinding.ActivityListarBinding
 
-class ListarActivity : AppCompatActivity() {
+class ListarActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
     private lateinit var binding: ActivityListarBinding
     private lateinit var banco: DatabaseHandler
+    private var adapter: MeuAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,40 +27,56 @@ class ListarActivity : AppCompatActivity() {
         binding = ActivityListarBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setSupportActionBar(binding.toolbar)
         banco = DatabaseHandler.getInstance(this)
 
-        // Ajusta o padding para as barras do sistema
         ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
-        binding.fabIncluir.setOnClickListener {
+        binding.fabAdicionar.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
+
+        // Configura a RecyclerView uma vez
+        binding.rvRegistros.layoutManager = GridLayoutManager(this, 2)
     }
 
-    override fun onStart() {
-        super.onStart()
-        // Atualiza a lista toda vez que a activity volta ao foco
-        initList()
+    override fun onResume() {
+        super.onResume()
+        // Carrega todos os dados quando a tela volta ao foco
+        updateList(banco.readAll())
     }
 
-    private fun initList() {
-        // Busca os dados do banco
-        val cursor: Cursor = banco.readAll()
+    private fun updateList(cursor: Cursor) {
+        adapter = MeuAdapter(this, cursor)
+        binding.rvRegistros.adapter = adapter
+    }
 
-        // Cria o adapter
-        val adapter = MeuAdapter(this, cursor)
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.search_menu, menu)
+        val searchItem = menu.findItem(R.id.action_search)
+        val searchView = searchItem.actionView as SearchView
+        searchView.setOnQueryTextListener(this)
+        return true
+    }
 
-        // Configura a RecyclerView
-        binding.rvRegistros.apply {
-            // Define o layout manager para ser um grid com 2 colunas
-            layoutManager = GridLayoutManager(this@ListarActivity, 2)
-            // Define o adapter
-            this.adapter = adapter
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        // Opcional: Ação ao submeter a busca (pressionar enter)
+        return false
+    }
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        // Ação ao digitar na barra de busca
+        val cursor = if (newText.isNullOrBlank()) {
+            banco.readAll()
+        } else {
+            banco.search(newText)
         }
+        updateList(cursor)
+        return true
     }
 }
