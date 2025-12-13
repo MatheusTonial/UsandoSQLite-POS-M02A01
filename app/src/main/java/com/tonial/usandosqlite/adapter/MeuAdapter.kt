@@ -1,6 +1,7 @@
 package com.tonial.usandosqlite.adapter
 
 import android.content.Context
+import android.content.Intent
 import android.database.Cursor
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.tonial.usandosqlite.MainActivity
 import com.tonial.usandosqlite.R
 import com.tonial.usandosqlite.database.DatabaseHandler
 
@@ -42,9 +44,14 @@ class MeuAdapter(
         // Move o cursor para a posição correta
         if (cursor.moveToPosition(position)) {
             // Extrai os dados do cursor
-            val id = cursor.getInt(cursor.getColumnIndexOrThrow("_id"))
-            val nome = cursor.getString(cursor.getColumnIndexOrThrow("nome"))
-            val telefone = cursor.getString(cursor.getColumnIndexOrThrow("telefone"))
+            //val id = cursor.getInt(cursor.getColumnIndexOrThrow("_id"))
+            //val nome = cursor.getString(cursor.getColumnIndexOrThrow("nome"))
+            //val telefone = cursor.getString(cursor.getColumnIndexOrThrow("telefone"))
+
+            val id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHandler.COLUMN_ID))
+            val nome = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHandler.COLUMN_NOME))
+            val telefone = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHandler.COLUMN_TELEFONE))
+
 
             // Define o texto nas TextViews do ViewHolder
             holder.tvNome.text = nome
@@ -52,8 +59,13 @@ class MeuAdapter(
 
             // Exemplo de como adicionar um evento de clique no botão de editar
             holder.btEditar.setOnClickListener {
-                Toast.makeText(context, "Editando: $nome (ID: $id)", Toast.LENGTH_SHORT).show()
-                // Aqui você pode iniciar uma nova activity para edição, por exemplo
+                //Toast.makeText(context, "Editando: $nome (ID: $id)", Toast.LENGTH_SHORT).show()
+                val intent = Intent(context, MainActivity::class.java)
+                intent.putExtra("id", id)
+                intent.putExtra("nome", nome)
+                intent.putExtra("telefone", telefone)
+
+                context.startActivity(intent)
             }
         }
     }

@@ -17,6 +17,7 @@
         android:id="@+id/etCod"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:enabled="false"
         android:inputType="number"/>
 
     <TextView
@@ -46,13 +47,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/incluir"
-        android:onClick="btnIncluirOnClick"/>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/editar"
-        android:onClick="btnEditarOnClick"/>
+        android:onClick="btnSalvarOnClick"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -65,11 +60,5 @@
         android:layout_height="wrap_content"
         android:text="@string/buscar"
         android:onClick="btnBuscarOnClick"/>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/listar"
-        android:onClick="btnListarOnClick"/>
 
 </LinearLayout>

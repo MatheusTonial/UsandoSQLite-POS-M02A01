@@ -15,9 +15,9 @@ class DatabaseHandler private constructor(context: Context) : SQLiteOpenHelper(c
         const val DATABASE_NAME = "bdfile.sqlite"
         const val DATABASE_VERSION = 2
         const val TABLE_NAME = "cadastros"
-        const val COLUMN_ID = ""
-        const val COLUMN_NOME: String = "1"
-        const val COLUMN_TELEFONE: String = "2"
+        const val COLUMN_ID = "_id"
+        const val COLUMN_NOME = "nome"
+        const val COLUMN_TELEFONE = "telefone"
 
         @Volatile
         private var INSTANCE: DatabaseHandler? = null

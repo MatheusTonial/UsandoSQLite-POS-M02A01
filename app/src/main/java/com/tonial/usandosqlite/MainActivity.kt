@@ -39,26 +39,36 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        initView()
     }
 
-    fun btnIncluirOnClick(view: View) {
+    private fun initView() {
+        if(intent.getIntExtra("id", 0) != 0){
+            binding.etCod.setText(intent.getIntExtra("id", 0).toString())
+            binding.etNome.setText(intent.getStringExtra("nome"))
+            binding.etNumero.setText(intent.getStringExtra("telefone"))
+        }
+        else{
 
-        banco.create(Cadastros(0, binding.etNome.text.toString(), binding.etNumero.text.toString()))
-
-        Toast.makeText(this, "Registro incluido com sucesso", Toast.LENGTH_SHORT).show()
-        binding.etNome.setText("")
-        binding.etNumero.setText("")
-        binding.etCod.setText("")
+        }
     }
 
-    fun btnEditarOnClick(view: View) {
+    fun btnSalvarOnClick(view: View) {
 
-        banco.update(Cadastros(binding.etCod.text.toString().toInt(), binding.etNome.text.toString(), binding.etNumero.text.toString()))
+        var msg = ""
+        if(binding.etCod.text.toString().isEmpty()){
+            //incluir
+            banco.create(Cadastros(0, binding.etNome.text.toString(), binding.etNumero.text.toString()))
+            msg = "Registro incluido com sucesso"
+        }
+        else{
+            //editar
+            banco.update(Cadastros(binding.etCod.text.toString().toInt(), binding.etNome.text.toString(), binding.etNumero.text.toString()))
+            msg = "Registro atualizado com sucesso"
+        }
 
-        Toast.makeText(this, "Registro atualizado com sucesso", Toast.LENGTH_SHORT).show()
-        binding.etNome.setText("")
-        binding.etNumero.setText("")
-        binding.etCod.setText("")
+        Toast.makeText(this,msg, Toast.LENGTH_SHORT).show()
     }
 
     fun btnRemoverOnClick(view: View) {
