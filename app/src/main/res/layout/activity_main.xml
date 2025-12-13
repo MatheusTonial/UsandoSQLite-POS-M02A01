@@ -44,21 +44,24 @@
 
 
     <Button
+        android:id="@+id/btnSalvar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/incluir"
-        android:onClick="btnSalvarOnClick"/>
+        android:onClick="btnSalvarOnClick"
+        android:text="@string/incluir" />
 
     <Button
+        android:id="@+id/btnExcluir"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/remover"
-        android:onClick="btnRemoverOnClick"/>
+        android:onClick="btnRemoverOnClick"
+        android:text="@string/remover" />
 
     <Button
+        android:id="@+id/btnBuscar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/buscar"
-        android:onClick="btnBuscarOnClick"/>
+        android:onClick="btnBuscarOnClick"
+        android:text="@string/buscar" />
 
 </LinearLayout>

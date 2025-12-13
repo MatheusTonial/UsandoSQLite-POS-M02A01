@@ -50,7 +50,8 @@ class MainActivity : AppCompatActivity() {
             binding.etNumero.setText(intent.getStringExtra("telefone"))
         }
         else{
-
+            binding.btnExcluir.visibility = View.GONE
+            binding.btnBuscar.visibility = View.GONE
         }
     }
 

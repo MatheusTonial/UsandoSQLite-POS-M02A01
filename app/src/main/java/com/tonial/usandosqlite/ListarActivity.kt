@@ -1,5 +1,6 @@
 package com.tonial.usandosqlite
 
+import android.content.Intent
 import android.database.Cursor
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
@@ -32,6 +33,15 @@ class ListarActivity : AppCompatActivity() {
             insets
         }
 
+        binding.fabIncluir.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // Atualiza a lista toda vez que a activity volta ao foco
         initList()
     }
 
