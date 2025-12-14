@@ -1,9 +1,5 @@
 package com.tonial.usandosqlite
 
-import android.content.ContentValues
-import android.content.Intent
-import android.database.Cursor
-import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
@@ -13,11 +9,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import com.tonial.usandosqlite.database.DatabaseHandler
 import com.tonial.usandosqlite.databinding.ActivityMainBinding
 import com.tonial.usandosqlite.entity.Cadastros
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -35,7 +33,7 @@ class MainActivity : AppCompatActivity() {
         //banco = openOrCreateDatabase("bdfile.sqlite", MODE_PRIVATE, null)
         //banco.execSQL("CREATE TABLE IF NOT EXISTS cadastros(_id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT, telefone TEXT);")
 
-        banco = DatabaseHandler.getInstance(this)
+        banco = DatabaseHandler.getInstance()
 
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -43,7 +41,11 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        //initView()
+    }
 
+    override fun onStart() {
+        super.onStart()
         initView()
     }
 
@@ -60,140 +62,92 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun btnSalvarOnClick(view: View) {
-        var msg = ""
 
-        val cadastro = Cadastros(
-            _id = binding.etCod.text.toString().toInt(),
-            nome = binding.etNome.text.toString(),
-            telefone = binding.etNumero.text.toString()
-        )
-
-        db.collection("cadastros")
-            .document(binding.etCod.text.toString())
-            .set(cadastro)
-            .addOnSuccessListener {
-                msg = "Cadastro realizado com sucesso!"
-                //Toast.makeText(this, "Cadastro realizado com sucesso!", Toast.LENGTH_SHORT).show()
+        lifecycleScope.launch {
+            var msg = ""
+            if(binding.etCod.text.toString().isEmpty()){
+                val cadastro = Cadastros(
+                    binding.etCod.text.toString().toInt(),
+                    binding.etNome.text.toString(),
+                    binding.etNumero.text.toString()
+                )
+                //acesso ao banco
+                banco.create(cadastro)
+                msg = "Registro incluido com sucesso"
             }
-            .addOnFailureListener { e ->
-                msg = "Erro ao realizar o cadastro: ${e.message}"
-                //Toast.makeText(this, "Erro ao realizar o cadastro: ${e.message}", Toast.LENGTH_SHORT).show()
+            else{
+                val cadastro = Cadastros(
+                    binding.etCod.text.toString().toInt(),
+                    binding.etNome.text.toString(),
+                    binding.etNumero.text.toString()
+                )
+
+                banco.update(cadastro)
+                msg = "Registro atualizado com sucesso"
             }
-
-//        if(binding.etCod.text.toString().isEmpty()){
-//            //incluir
-//            banco.create(Cadastros(0, binding.etNome.text.toString(), binding.etNumero.text.toString()))
-//            msg = "Registro incluido com sucesso"
-//        }
-//        else{
-//            //editar
-//            banco.update(Cadastros(binding.etCod.text.toString().toInt(), binding.etNome.text.toString(), binding.etNumero.text.toString()))
-//            msg = "Registro atualizado com sucesso"
-//        }
-
-        Toast.makeText(this,msg, Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@MainActivity,msg, Toast.LENGTH_SHORT).show()
+            finish()
+        }
     }
 
     fun btnRemoverOnClick(view: View) {
 
-        banco.delete(binding.etCod.text.toString().toInt())
+        lifecycleScope.launch {
+            banco.delete(binding.etCod.text.toString().toInt())
 
-        Toast.makeText(this, "Registro removido com sucesso", Toast.LENGTH_SHORT).show()
-        binding.etNome.setText("")
-        binding.etNumero.setText("")
-        binding.etCod.setText("")
+            //apresentação da devolutiva visual para o usuário
+            Toast.makeText(
+                this@MainActivity,
+                "Exclusão efetuada com Sucesso.",
+                Toast.LENGTH_SHORT
+            ).show()
+
+            finish()
+        }
     }
 
     fun btnBuscarOnClick(view: View) {
 
-        val msg = StringBuilder()
+        //validação dos campos de tela
 
-        db.collection("cadastros")
-            //.document(binding.etCod.text.toString())//where
-            .get()
-            .addOnSuccessListener { result ->
-                val resgistro = result.toString()
-                for (document in result) {
-                    msg.append(document.getString("nome"))
-                    msg.append("\n")
+        //acesso ao banco
+        val etCodPesquisar = EditText(this)
 
+        val builder = AlertDialog.Builder( this )
+        builder.setTitle("Digite o Código")
+        builder.setView(etCodPesquisar)
+        builder.setCancelable(false)
+        builder.setNegativeButton(
+            "Fechar",
+            null
+        )
+
+        builder.setPositiveButton(
+            "Pesquisar",
+            { dialog, which ->
+
+                lifecycleScope.launch {
+
+                    val cadastro = banco.read(etCodPesquisar.text.toString().toInt())
+
+                    if (cadastro != null) {
+                        binding.etCod.setText(etCodPesquisar.text.toString())
+                        binding.etNome.setText(cadastro.nome)
+                        binding.etNumero.setText(cadastro.telefone)
+                    } else {
+                        binding.etNome.setText("")
+                        binding.etNumero.setText("")
+
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Registro não encontro.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
-                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
             }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
-            }
-
-//        if(binding.etCod.text.toString() == ""){
-//            Toast.makeText(this, "Informe o código do registro", Toast.LENGTH_SHORT).show()
-//            return
-//        }
-//
-//        val etCodPesquisa = EditText(this)
-//
-//
-//        val builder = AlertDialog.Builder(this)
-//        builder.setTitle("Digite o codigo")
-//        //builder.setMessage("Deseja pesquisar o registro?")
-//        builder.setView(etCodPesquisa)
-//        builder.setCancelable(false)
-//        builder.setNegativeButton(
-//            "Ficarechar",
-//            null)
-//        builder.setPositiveButton(
-//            "Pesquisar",
-//            { dialog, which ->
-//                        val registro: Cadastros? = banco.read(etCodPesquisa.text.toString().toInt())
-//                        if(registro != null){
-//                            val nome = registro.nome
-//                            val telefone = registro.telefone
-//
-//                            binding.etCod.setText(etCodPesquisa.text.toString())
-//                            binding.etNome.setText(nome)
-//                            binding.etNumero.setText(telefone)
-//
-//                        }else{
-//                            Toast.makeText(this, "Registro não encontrado", Toast.LENGTH_SHORT).show()
-//                            binding.etNome.setText("")
-//                            binding.etNumero.setText("")
-//                            binding.etCod.setText("")
-//                        }
-//            })
-//        builder.show()
-
-
-
+        )
+        builder.show()
     }
 
-//    fun btnListarOnClick(view: View) {
-//        val intent = Intent(this, ListarActivity::class.java)
-//        startActivity(intent)
-//
-////        val registros = banco.readAll()
-////
-////        if(registros.count == 0){
-////            Toast.makeText(this, "Nenhum registro encontrado", Toast.LENGTH_SHORT).show()
-////            return
-////        }
-////
-////        val saida = StringBuilder()
-////
-////        var index: Int = 0;
-////        while (registros.moveToNext()){
-////            if(index > 0 ){
-////                saida.append("\n\n")
-////            }
-////            val nome = registros.getString(DatabaseHandler.COLUMN_NOME.toInt())
-////            val telefone = registros.getString(DatabaseHandler.COLUMN_TELEFONE.toInt())
-////
-////            saida.append("Nome: $nome\n")
-////            saida.append("Telefone: $telefone")
-////
-////            index++;
-////        }
-////        Toast.makeText(this, saida.toString(), Toast.LENGTH_SHORT).show()
-////        binding.etNome.setText("")
-////        binding.etNumero.setText("")
-////        binding.etCod.setText("")
-//    }
 }

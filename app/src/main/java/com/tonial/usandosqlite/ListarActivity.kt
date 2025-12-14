@@ -9,10 +9,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.tonial.usandosqlite.adapter.MeuAdapter
 import com.tonial.usandosqlite.database.DatabaseHandler
 import com.tonial.usandosqlite.databinding.ActivityListarBinding
+import com.tonial.usandosqlite.entity.Cadastros
+import kotlinx.coroutines.launch
 
 class ListarActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
@@ -28,7 +31,7 @@ class ListarActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
-        banco = DatabaseHandler.getInstance(this)
+        banco = DatabaseHandler.getInstance()
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -48,12 +51,18 @@ class ListarActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     override fun onResume() {
         super.onResume()
         // Carrega todos os dados quando a tela volta ao foco
-        updateList(banco.readAll())
+        lifecycleScope.launch {
+            val cadastros = banco.readAll()
+            updateList(cadastros)
+        }
     }
 
-    private fun updateList(cursor: Cursor) {
-        adapter = MeuAdapter(this, cursor)
-        binding.rvRegistros.adapter = adapter
+    private fun updateList(cadastros: List<Cadastros>) {
+        lifecycleScope.launch {
+            adapter = MeuAdapter(this, cadastros)
+            binding.rvRegistros.adapter = adapter
+        }
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
